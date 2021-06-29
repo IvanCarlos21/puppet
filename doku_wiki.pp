@@ -38,38 +38,45 @@ class dokuwiki {
 
 }
 
-class politiquewiki {
+define install_site($siteName, $source, $owner) {
   file {
-  'copy-dokuwiki-recettes.wiki':
-    ensure  => directory,
-    path    => '/var/www/recettes.wiki',
-    source  => '/usr/src/dokuwiki',
-    recurse => true,
-    owner   => 'www-data',
-    group   => 'www-data',
-    require => File['move-dokuwiki']
-  }
-}
-
-class recetteswiki {
-  file {
-  'create directory for politique.wiki':
-    ensure  => directory,
-    path    => '/var/www/politique.wiki',
-    source  => '/usr/src/dokuwiki',
-    recurse => true,
-    owner   => 'www-data',
-    group   => 'www-data',
-    require => File['move-dokuwiki']
+    $siteName:
+      ensure  => directory,
+      path    => "/var/www/${siteName}",
+      source  => $source,
+      recurse => true,
+      owner   => $owner,
+      group   => $owner,
+      require => File['move-dokuwiki']
   }
 }
 
 node server0 {
   include dokuwiki
-  include politiquewiki
+  install_site {
+    'politique.wiki':
+      siteName => 'politique.wiki',
+      source   => '/usr/src/dokuwiki',
+      owner    => 'www-data'
+    ;
+    'tajineworld.com':
+      siteName => 'tajineworld.com',
+      source   => '/usr/src/dokuwiki',
+      owner    => 'www-data'
+    ;
+    'lemondedelaraclette.fr':
+      siteName => 'lemondedelaraclette.fr',
+      source   => '/usr/src/dokuwiki',
+      owner    => 'www-data'
+  }
 }
 
 node server1 {
   include dokuwiki
-  include recetteswiki
+  install_site {
+    'recettes.wiki':
+      siteName => 'recettes.wiki',
+      source   => '/usr/src/dokuwiki',
+      owner    => 'www-data'
+  }
 }
